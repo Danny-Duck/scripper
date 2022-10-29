@@ -7,5 +7,9 @@ description = "A simple command line tool to run multiple scripts in a succint a
 repository = "https://github.com/Danny-Duck/scripper" 
 keywords = ["scirpts", "cli", "run", "sequential", "tool"]
 categories = ["command-line-utilities", "development-tools::cargo-plugins"]
+crate-type = ["bin"]
+
+[[bin]]
+name = "scripper"
 
 [dependencies]
