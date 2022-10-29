@@ -1,6 +1,6 @@
 [package]
 name = "scripper"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 description = "A simple command line tool to run multiple scripts in a succint and organised way. It will run all the scripts, capture the output and only print when an error has occured design to run something like tests and linting where you only care when it fails"
@@ -10,6 +10,6 @@ categories = ["command-line-utilities", "development-tools::cargo-plugins"]
 crate-type = ["bin"]
 
 [[bin]]
+bench = false
+path = "src/main.rs"
 name = "scripper"
-
-[dependencies]
