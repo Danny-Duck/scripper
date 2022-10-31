@@ -1,8 +1,12 @@
 use std::process::{Command, Output};
 
+use clap::{command, Parser};
+use regex::Regex;
+
+#[derive(Debug)]
 struct Cmd {
     cmd: String,
-    args: Vec<String>,
+    args: String,
 }
 
 struct CmdErr {
@@ -18,26 +22,40 @@ fn handle_error(CmdErr { cmd, stderr }: CmdErr, errors: &mut Vec<CmdErr>) {
     errors.push(new_err);
 }
 
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None )]
+struct Args {
+    #[arg(short, long)]
+    commands: Vec<String>,
+}
+
 fn main() {
-    let commands = vec![
-        Cmd {
-            cmd: "ls".to_string(),
-            args: vec!["-la".to_string()],
-        },
-        Cmd {
-            cmd: "pwd".to_string(),
-            args: vec![],
-        },
-        Cmd {
-            cmd: "dalksjl".to_string(),
-            args: vec![],
-        },
-    ];
+    let Args { commands } = Args::parse();
+    println!("{:?}", commands);
 
     let mut errors: Vec<CmdErr> = vec![];
 
-    for Cmd { cmd, args } in commands {
-        match Command::new(&cmd).args(args).output() {
+    fn parse_commands(args: Args) -> Vec<Cmd> {
+        let mut cmds: Vec<Cmd> = vec![];
+
+        let regex = Regex::new(r"(?P<command>\w*) (?P<args>.*)").unwrap();
+
+        for cmd in args.commands {
+            let res = regex.captures(&cmd).unwrap();
+
+            let cmd = Cmd {
+                cmd: res["command"].to_string(),
+                args: res["args"].to_string(),
+            };
+            cmds.push(cmd)
+        }
+
+        println!("{:?}", cmds);
+        cmds
+    }
+
+    for Cmd { cmd, args } in parse_commands(Args { commands }) {
+        match Command::new(&cmd).arg(args).output() {
             Ok(Output { status, stderr, .. }) => {
                 if status.code() > Some(0) {
                     handle_error(CmdErr { cmd, stderr }, &mut errors)
@@ -55,7 +73,9 @@ fn main() {
         };
     }
 
-    println!("\n-------------\n");
+    if !errors.is_empty() {
+        println!("\n-------------\n")
+    }
 
     for CmdErr { cmd, stderr } in errors.iter() {
         println!("❌ {}", cmd);

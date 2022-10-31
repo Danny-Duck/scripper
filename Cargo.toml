@@ -13,3 +13,7 @@ crate-type = ["bin"]
 bench = false
 path = "src/main.rs"
 name = "scripper"
+
+[dependencies]
+clap = { version = "4.0.18", features = ["derive"] }
+regex = "1.6.0"
